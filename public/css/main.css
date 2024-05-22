@@ -6,9 +6,9 @@
     --spacing: 15px;
     --greyText: rgb(101, 119, 134);
     --greyButtonText: rgba(0, 0, 0, 0.34);
-        --red: rgb(226, 34, 94);
+    --red: rgb(226, 34, 94);
     --redBackground: rgba(226, 34, 94, 0.1);
-        --green: rgb(23, 191, 99);
+    --green: rgb(23, 191, 99);
         --greenBackground: rgba(23, 191, 99, 0.1);
 }
 
@@ -98,6 +98,15 @@ button span {
     flex-shrink: 0;
 }
 
+.modal .postFormContainer {
+    border: none;
+    padding: 0;
+    padding-top: var(--spacing);
+}
+
+.modal .post {
+    padding: 0 0 var(--spacing) 0;
+}
 .userImageContainer {
     width: 50px;
     height: 50px;
@@ -195,6 +204,7 @@ button span {
 .postButtonContainer.red button.active {
     color: var(--red);
 }
+
 .postButtonContainer.red button:hover {
     color: var(--red);
     background-color: var(--redBackground)
@@ -214,4 +224,11 @@ button span {
     font-size: 13px;
     color: var(--greyText);
     margin-bottom: 5px;
+}
+.replyFlag {
+    margin-bottom: 5px;
+}
+
+.replyFlag a {
+    color: var(--blue);
 }
