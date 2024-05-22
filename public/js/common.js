@@ -58,6 +58,29 @@ $('#replyModal').on('hidden.bs.modal', () =>
   $('#originalPostContainer').html('')
 );
 
+$('#deletePostModal').on('show.bs.modal', (event) => {
+  let button = $(event.relatedTarget);
+  let postId = getPostIdFromElement(button);
+  $('#deletePostButton').data('id', postId);
+});
+
+$('#deletePostButton').click((event) => {
+  let postId = $(event.target).data('id');
+
+  $.ajax({
+    url: `/api/posts/${postId}`,
+    type: 'DELETE',
+    success: (data, status, xhr) => {
+      if (xhr.status != 202) {
+        alert('could not delete post');
+        return;
+      }
+
+      location.reload();
+    },
+  });
+});
+
 $(document).on('click', '.likeButton', (event) => {
   let button = $(event.target);
   let postId = getPostIdFromElement(button);
@@ -154,7 +177,7 @@ function createPostHtml(postData, largeFont = false) {
   }
 
   let replyFlag = '';
-  if (postData.replyTo && postData.replyTo._id) {
+  if (postData.replyTo?._id) {
     if (!postData.replyTo._id) {
       return alert('Reply to is not populated');
     } else if (!postData.replyTo.postedBy._id) {
@@ -165,6 +188,11 @@ function createPostHtml(postData, largeFont = false) {
     replyFlag = `<div class='replyFlag'>
                         Replying to <a href='/profile/${replyToUsername}'>@${replyToUsername}<a>
                     </div>`;
+  }
+
+  let buttons = '';
+  if (postData.postedBy._id == userLoggedIn._id) {
+    buttons = `<button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`;
   }
 
   return `<div class='post ${largeFontClass}' data-id='${postData._id}'>
@@ -182,6 +210,7 @@ function createPostHtml(postData, largeFont = false) {
                             }' class='displayName'>${displayName}</a>
                             <span class='username'>@${postedBy.username}</span>
                             <span class='date'>${timestamp}</span>
+                            ${buttons}
                         </div>
                         ${replyFlag}
                         <div class='postBody'>
