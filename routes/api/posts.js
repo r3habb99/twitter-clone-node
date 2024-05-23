@@ -8,7 +8,16 @@ const Post = require('../../schemas/PostSchema');
 app.use(bodyParser.urlencoded({ extended: false }));
 
 router.get('/', async (req, res, next) => {
-  let results = await getPosts({});
+  let searchObj = req.query;
+
+  if (searchObj.isReply !== undefined) {
+    let isReply = searchObj.isReply == 'true';
+    searchObj.replyTo = { $exists: isReply };
+    delete searchObj.isReply;
+    console.log(searchObj);
+  }
+
+  let results = await getPosts(searchObj);
   res.status(200).send(results);
 });
 
@@ -62,8 +71,7 @@ router.put('/:id/like', async (req, res, next) => {
   let postId = req.params.id;
   let userId = req.session.user._id;
 
-  let isLiked =
-    req.session.user.likes && req.session.user.likes.includes(postId);
+  let isLiked = req.session.user.likes?.includes(postId);
 
   let option = isLiked ? '$pull' : '$addToSet';
 
