@@ -132,6 +132,39 @@ $(document).on('click', '.post', (event) => {
   }
 });
 
+$(document).on('click', '.followButton', (e) => {
+  let button = $(e.target);
+  let userId = button.data().user;
+
+  $.ajax({
+    url: `/api/users/${userId}/follow`,
+    type: 'PUT',
+    success: (data, status, xhr) => {
+      if (xhr.status == 404) {
+        alert('user not found');
+        return;
+      }
+
+      let difference = 1;
+      if (data.following?.includes(userId)) {
+        button.addClass('following');
+        button.text('Following');
+      } else {
+        button.removeClass('following');
+        button.text('Follow');
+        difference = -1;
+      }
+
+      let followersLabel = $('#followersValue');
+      if (followersLabel.length != 0) {
+        let followersText = followersLabel.text();
+        followersText = parseInt(followersText);
+        followersLabel.text(followersText + difference);
+      }
+    },
+  });
+});
+
 function getPostIdFromElement(element) {
   let isRoot = element.hasClass('post');
   let rootElement = isRoot == true ? element : element.closest('.post');
@@ -177,7 +210,7 @@ function createPostHtml(postData, largeFont = false) {
   }
 
   let replyFlag = '';
-  if (postData.replyTo && postData.replyTo._id) {
+  if (postData.replyTo?._id) {
     if (!postData.replyTo._id) {
       return alert('Reply to is not populated');
     } else if (!postData.replyTo.postedBy._id) {
