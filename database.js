@@ -19,10 +19,10 @@ class Database {
       .connect('mongodb://localhost:27017/twitter-clone-dev')
 
       .then(() => {
-        console.log('database connection successful');
+        console.log('Database connection successful...');
       })
       .catch((err) => {
-        console.log('database connection error ' + err);
+        console.log('Database connection error ' + err);
       });
   }
 }
