@@ -1,3 +1,6 @@
+// Globals
+let cropper;
+
 $('#postTextarea, #replyTextarea').keyup((event) => {
   let textbox = $(event.target);
   let value = textbox.val().trim();
@@ -78,6 +81,51 @@ $('#deletePostButton').click((event) => {
 
       location.reload();
     },
+  });
+});
+
+$('#filePhoto').change(function () {
+  if (this.files?.[0]) {
+    let reader = new FileReader();
+    reader.onload = (e) => {
+      let image = document.getElementById('imagePreview');
+      image.src = e.target.result;
+
+      if (cropper !== undefined) {
+        cropper.destroy();
+      }
+
+      cropper = new Cropper(image, {
+        aspectRatio: 1 / 1,
+        background: false,
+      });
+    };
+    reader.readAsDataURL(this.files[0]);
+  } else {
+    console.log('nope');
+  }
+});
+
+$('#imageUploadButton').click(() => {
+  let canvas = cropper.getCroppedCanvas();
+
+  if (canvas == null) {
+    alert('Could not upload image. Make sure it is an image file.');
+    return;
+  }
+
+  canvas.toBlob((blob) => {
+    let formData = new FormData();
+    formData.append('croppedImage', blob);
+
+    $.ajax({
+      url: '/api/users/profilePicture',
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: () => location.reload(),
+    });
   });
 });
 
