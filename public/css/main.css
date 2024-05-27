@@ -63,6 +63,7 @@ nav a:hover {
 .wrapper>.row {
     margin: 0;
 }
+
 button {
     background-color: transparent;
     border: none;
@@ -268,7 +269,8 @@ button span {
     margin-left: var(--spacing);
     position: absolute;
     bottom: -66px;
-display: flex;
+
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -352,6 +354,7 @@ display: flex;
     color: var(--blue);
     background-color: var(--blueBackground);
 }
+
 .noResults {
     padding: var(--spacing);
 }
@@ -381,4 +384,11 @@ display: flex;
 
 .userImageContainer:hover .profilePictureButton {
     display: block;
+}
+#imagePreview {
+    width: 100%;
+    display: block;
+
+    /* This rule is very important, please don't ignore this */
+    max-width: 100%;
 }
