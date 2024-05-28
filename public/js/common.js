@@ -155,7 +155,7 @@ $('#filePhoto').change(function () {
 });
 
 $('#coverPhoto').change(function () {
-  if (this.files && this.files[0]) {
+  if (this.files?.[0]) {
     let reader = new FileReader();
     reader.onload = (e) => {
       let image = document.getElementById('coverPreview');
@@ -317,114 +317,103 @@ function getPostIdFromElement(element) {
 function createPostHtml(postData, largeFont = false) {
   if (postData == null) return alert('post object is null');
 
-  let isRetweet = postData.retweetData !== undefined;
-  let retweetedBy = isRetweet ? postData.postedBy.username : null;
+  const isRetweet = postData.retweetData !== undefined;
   postData = isRetweet ? postData.retweetData : postData;
 
-  let postedBy = postData.postedBy;
-
-  if (postedBy._id === undefined) {
+  const postedBy = postData.postedBy;
+  if (!postedBy._id) {
     return console.log('User object not populated');
   }
 
-  let displayName = postedBy.firstName + ' ' + postedBy.lastName;
-  let timestamp = timeDifference(new Date(), new Date(postData.createdAt));
+  const displayName = postedBy.firstName + ' ' + postedBy.lastName;
+  const timestamp = timeDifference(new Date(), new Date(postData.createdAt));
 
-  let likeButtonActiveClass = postData.likes.includes(userLoggedIn._id)
+  const likeButtonActiveClass = postData.likes.includes(userLoggedIn._id)
     ? 'active'
     : '';
-  let retweetButtonActiveClass = postData.retweetUsers.includes(
+  const retweetButtonActiveClass = postData.retweetUsers.includes(
     userLoggedIn._id
   )
     ? 'active'
     : '';
-  let largeFontClass = largeFont ? 'largeFont' : '';
+  const largeFontClass = largeFont ? 'largeFont' : '';
 
-  let retweetText = '';
-  if (isRetweet) {
-    retweetText = `<span>
-                        <i class='fas fa-retweet'></i>
-                        Retweeted by <a href='/profile/${retweetedBy}'>@${retweetedBy}</a>    
-                    </span>`;
-  }
+  const retweetText = isRetweet ? getRetweetText(postData) : '';
+  const replyFlag = postData.replyTo ? getReplyFlag(postData) : '';
 
-  let replyFlag = '';
-  if (postData.replyTo?._id) {
-    if (!postData.replyTo._id) {
-      return alert('Reply to is not populated');
-    } else if (!postData.replyTo.postedBy._id) {
-      return alert('Posted by is not populated');
-    }
+  const buttons = getPostButtons(postData);
 
-    let replyToUsername = postData.replyTo.postedBy.username;
-    replyFlag = `<div class='replyFlag'>
-                        Replying to <a href='/profile/${replyToUsername}'>@${replyToUsername}<a>
-                    </div>`;
-  }
+  return `<div class='post ${largeFontClass}' data-id='${postData._id}'>
+            <div class='postActionContainer'>
+              ${retweetText}
+            </div>
+            <div class='mainContentContainer'>
+              <div class='userImageContainer'>
+                <img src='${postedBy.profilePic}'>
+              </div>
+              <div class='postContentContainer'>
+                <div class='header'>
+                  <a href='/profile/${
+                    postedBy.username
+                  }' class='displayName'>${displayName}</a>
+                  <span class='username'>@${postedBy.username}</span>
+                  <span class='date'>${timestamp}</span>
+                  ${buttons}
+                </div>
+                ${replyFlag}
+                <div class='postBody'>
+                  <span>${postData.content}</span>
+                </div>
+                <div class='postFooter'>
+                  <div class='postButtonContainer'>
+                    <button data-toggle='modal' data-target='#replyModal'><i class='far fa-comment'></i></button>
+                  </div>
+                  <div class='postButtonContainer green'>
+                    <button class='retweetButton ${retweetButtonActiveClass}'><i class='fas fa-retweet'></i><span>${
+    postData.retweetUsers.length || ''
+  }</span></button>
+                  </div>
+                  <div class='postButtonContainer red'>
+                    <button class='likeButton ${likeButtonActiveClass}'><i class='far fa-heart'></i><span>${
+    postData.likes.length || ''
+  }</span></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+}
 
+function getRetweetText(postData) {
+  const retweetedBy = postData.postedBy.username;
+  return `<span>
+            <i class='fas fa-retweet'></i>
+            Retweeted by <a href='/profile/${retweetedBy}'>@${retweetedBy}</a>    
+          </span>`;
+}
+
+function getReplyFlag(postData) {
+  const replyToUsername = postData.replyTo.postedBy.username;
+  return `<div class='replyFlag'>
+            Replying to <a href='/profile/${replyToUsername}'>@${replyToUsername}</a>
+          </div>`;
+}
+
+function getPostButtons(postData) {
   let buttons = '';
-  let pinnedPostText = '';
   if (postData.postedBy._id == userLoggedIn._id) {
     let pinnedClass = '';
     let dataTarget = '#confirmPinModal';
     if (postData.pinned === true) {
       pinnedClass = 'active';
       dataTarget = '#unpinModal';
-      pinnedPostText =
-        "<i class='fas fa-thumbtack'></i> <span>Pinned post</span>";
     }
-
     buttons = `<button class='pinButton ${pinnedClass}' data-id="${postData._id}" data-toggle="modal" data-target="${dataTarget}"><i class='fas fa-thumbtack'></i></button>
-                    <button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`;
+              <button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`;
   }
-
-  return `<div class='post ${largeFontClass}' data-id='${postData._id}'>
-                <div class='postActionContainer'>
-                    ${retweetText}
-                </div>
-                <div class='mainContentContainer'>
-                    <div class='userImageContainer'>
-                        <img src='${postedBy.profilePic}'>
-                    </div>
-                    <div class='postContentContainer'>
-                        <div class='pinnedPostText'>${pinnedPostText}</div>
-                        <div class='header'>
-                            <a href='/profile/${
-                              postedBy.username
-                            }' class='displayName'>${displayName}</a>
-                            <span class='username'>@${postedBy.username}</span>
-                            <span class='date'>${timestamp}</span>
-                            ${buttons}
-                        </div>
-                        ${replyFlag}
-                        <div class='postBody'>
-                            <span>${postData.content}</span>
-                        </div>
-                        <div class='postFooter'>
-                            <div class='postButtonContainer'>
-                                <button data-toggle='modal' data-target='#replyModal'>
-                                    <i class='far fa-comment'></i>
-                                </button>
-                            </div>
-                            <div class='postButtonContainer green'>
-                                <button class='retweetButton ${retweetButtonActiveClass}'>
-                                    <i class='fas fa-retweet'></i>
-                                    <span>${
-                                      postData.retweetUsers.length || ''
-                                    }</span>
-                                </button>
-                            </div>
-                            <div class='postButtonContainer red'>
-                                <button class='likeButton ${likeButtonActiveClass}'>
-                                    <i class='far fa-heart'></i>
-                                    <span>${postData.likes.length || ''}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
+  return buttons;
 }
+
 
 function timeDifference(current, previous) {
   let msPerMinute = 60 * 1000;
