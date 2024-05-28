@@ -8,19 +8,19 @@ const Post = require('../../schemas/PostSchema');
 app.use(bodyParser.urlencoded({ extended: false }));
 
 router.get('/', async (req, res, next) => {
-  var searchObj = req.query;
+  let searchObj = req.query;
 
   if (searchObj.isReply !== undefined) {
-    var isReply = searchObj.isReply == 'true';
+    let isReply = searchObj.isReply == 'true';
     searchObj.replyTo = { $exists: isReply };
     delete searchObj.isReply;
   }
 
   if (searchObj.followingOnly !== undefined) {
-    var followingOnly = searchObj.followingOnly == 'true';
+    let followingOnly = searchObj.followingOnly == 'true';
 
     if (followingOnly) {
-      var objectIds = [];
+      let objectIds = [];
 
       if (!req.session.user.following) {
         req.session.user.following = [];
@@ -37,17 +37,17 @@ router.get('/', async (req, res, next) => {
     delete searchObj.followingOnly;
   }
 
-  var results = await getPosts(searchObj);
+  let results = await getPosts(searchObj);
   res.status(200).send(results);
 });
 
 router.get('/:id', async (req, res, next) => {
-  var postId = req.params.id;
+  let postId = req.params.id;
 
-  var postData = await getPosts({ _id: postId });
+  let postData = await getPosts({ _id: postId });
   postData = postData[0];
 
-  var results = {
+  let results = {
     postData: postData,
   };
 
@@ -66,7 +66,7 @@ router.post('/', async (req, res, next) => {
     return res.sendStatus(400);
   }
 
-  var postData = {
+  let postData = {
     content: req.body.content,
     postedBy: req.session.user,
   };
@@ -88,13 +88,12 @@ router.post('/', async (req, res, next) => {
 });
 
 router.put('/:id/like', async (req, res, next) => {
-  var postId = req.params.id;
-  var userId = req.session.user._id;
+  let postId = req.params.id;
+  let userId = req.session.user._id;
 
-  var isLiked =
-    req.session.user.likes && req.session.user.likes.includes(postId);
+  let isLiked = req.session.user.likes?.includes(postId);
 
-  var option = isLiked ? '$pull' : '$addToSet';
+  let option = isLiked ? '$pull' : '$addToSet';
 
   // Insert user like
   req.session.user = await User.findByIdAndUpdate(
@@ -107,7 +106,7 @@ router.put('/:id/like', async (req, res, next) => {
   });
 
   // Insert post like
-  var post = await Post.findByIdAndUpdate(
+  let post = await Post.findByIdAndUpdate(
     postId,
     { [option]: { likes: userId } },
     { new: true }
@@ -120,11 +119,11 @@ router.put('/:id/like', async (req, res, next) => {
 });
 
 router.post('/:id/retweet', async (req, res, next) => {
-  var postId = req.params.id;
-  var userId = req.session.user._id;
+  let postId = req.params.id;
+  let userId = req.session.user._id;
 
   // Try and delete retweet
-  var deletedPost = await Post.findOneAndDelete({
+  let deletedPost = await Post.findOneAndDelete({
     postedBy: userId,
     retweetData: postId,
   }).catch((error) => {
@@ -132,9 +131,9 @@ router.post('/:id/retweet', async (req, res, next) => {
     res.sendStatus(400);
   });
 
-  var option = deletedPost != null ? '$pull' : '$addToSet';
+  let option = deletedPost != null ? '$pull' : '$addToSet';
 
-  var repost = deletedPost;
+  let repost = deletedPost;
 
   if (repost == null) {
     repost = await Post.create({ postedBy: userId, retweetData: postId }).catch(
@@ -156,7 +155,7 @@ router.post('/:id/retweet', async (req, res, next) => {
   });
 
   // Insert post like
-  var post = await Post.findByIdAndUpdate(
+  let post = await Post.findByIdAndUpdate(
     postId,
     { [option]: { retweetUsers: userId } },
     { new: true }
@@ -178,7 +177,7 @@ router.delete('/:id', (req, res, next) => {
 });
 
 async function getPosts(filter) {
-  var results = await Post.find(filter)
+  let results = await Post.find(filter)
     .populate('postedBy')
     .populate('retweetData')
     .populate('replyTo')

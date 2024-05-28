@@ -4,27 +4,9 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs').promises;
-const Post = require('../../schemas/PostSchema');
+const fs = require('fs');
+const upload = multer({ dest: 'uploads/' });
 const User = require('../../schemas/UserSchema');
-
-// Configure multer for file upload
-const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    try {
-      const dir = path.join(__dirname, '../../uploads/images');
-      await fs.mkdir(dir, { recursive: true }); // Create directory if it does not exist
-      cb(null, dir);
-    } catch (error) {
-      cb(error, dir);
-    }
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-
-const upload = multer({ storage: storage });
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -81,7 +63,6 @@ router.get('/:userId/followers', async (req, res, next) => {
     });
 });
 
-// Route to upload profile picture
 router.post(
   '/profilePicture',
   upload.single('croppedImage'),
@@ -91,25 +72,52 @@ router.post(
       return res.sendStatus(400);
     }
 
-    const filePath = `/uploads/images/${req.file.filename}`;
-    const tempPath = req.file.path;
-    const targetPath = path.join(__dirname, `../../${filePath}`);
+    let filePath = `/uploads/images/${req.file.filename}.png`;
+    let tempPath = req.file.path;
+    let targetPath = path.join(__dirname, `../../${filePath}`);
 
-    try {
-      await fs.rename(tempPath, targetPath); // Rename and move the file
-      await fs.chmod(targetPath, 0o644); // Set file permissions to readable
+    fs.rename(tempPath, targetPath, async (error) => {
+      if (error != null) {
+        console.log(error);
+        return res.sendStatus(400);
+      }
 
-      // Update user profile picture in the database
       req.session.user = await User.findByIdAndUpdate(
         req.session.user._id,
         { profilePic: filePath },
         { new: true }
       );
       res.sendStatus(204);
-    } catch (error) {
-      console.log(error);
-      res.sendStatus(500);
+    });
+  }
+);
+
+router.post(
+  '/coverPhoto',
+  upload.single('croppedImage'),
+  async (req, res, next) => {
+    if (!req.file) {
+      console.log('No file uploaded with ajax request.');
+      return res.sendStatus(400);
     }
+
+    let filePath = `/uploads/images/${req.file.filename}.png`;
+    let tempPath = req.file.path;
+    let targetPath = path.join(__dirname, `../../${filePath}`);
+
+    fs.rename(tempPath, targetPath, async (error) => {
+      if (error != null) {
+        console.log(error);
+        return res.sendStatus(400);
+      }
+
+      req.session.user = await User.findByIdAndUpdate(
+        req.session.user._id,
+        { coverPhoto: filePath },
+        { new: true }
+      );
+      res.sendStatus(204);
+    });
   }
 );
 
