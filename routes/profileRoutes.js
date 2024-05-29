@@ -1,6 +1,8 @@
 const express = require('express');
+const app = express();
 const router = express.Router();
-
+const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 const User = require('../schemas/UserSchema');
 
 router.get('/', (req, res, next) => {
@@ -30,7 +32,6 @@ router.get('/:username/replies', async (req, res, next) => {
 router.get('/:username/following', async (req, res, next) => {
   let payload = await getPayload(req.params.username, req.session.user);
   payload.selectedTab = 'following';
-
 
   res.status(200).render('followersAndFollowing', payload);
 });
