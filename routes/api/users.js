@@ -7,18 +7,41 @@ const path = require('path');
 const fs = require('fs');
 const upload = multer({ dest: 'uploads/' });
 const User = require('../../schemas/UserSchema');
+const Post = require('../../schemas/PostSchema');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-router.put('/:userId/follow', async (req, res, next) => {
-  let userId = req.params.userId;
+router.get('/', async (req, res, next) => {
+  var searchObj = req.query;
 
-  let user = await User.findById(userId);
+  if (req.query.search !== undefined) {
+    searchObj = {
+      $or: [
+        { firstName: { $regex: req.query.search, $options: 'i' } },
+        { lastName: { $regex: req.query.search, $options: 'i' } },
+        { username: { $regex: req.query.search, $options: 'i' } },
+      ],
+    };
+  }
+
+  User.find(searchObj)
+    .then((results) => res.status(200).send(results))
+    .catch((error) => {
+      console.log(error);
+      res.sendStatus(400);
+    });
+});
+
+router.put('/:userId/follow', async (req, res, next) => {
+  var userId = req.params.userId;
+
+  var user = await User.findById(userId);
 
   if (user == null) return res.sendStatus(404);
 
-  let isFollowing = user.followers?.includes(req.session.user._id);
-  let option = isFollowing ? '$pull' : '$addToSet';
+  var isFollowing =
+    user.followers && user.followers.includes(req.session.user._id);
+  var option = isFollowing ? '$pull' : '$addToSet';
 
   req.session.user = await User.findByIdAndUpdate(
     req.session.user._id,
@@ -72,9 +95,9 @@ router.post(
       return res.sendStatus(400);
     }
 
-    let filePath = `/uploads/images/${req.file.filename}.png`;
-    let tempPath = req.file.path;
-    let targetPath = path.join(__dirname, `../../${filePath}`);
+    var filePath = `/uploads/images/${req.file.filename}.png`;
+    var tempPath = req.file.path;
+    var targetPath = path.join(__dirname, `../../${filePath}`);
 
     fs.rename(tempPath, targetPath, async (error) => {
       if (error != null) {
@@ -101,9 +124,9 @@ router.post(
       return res.sendStatus(400);
     }
 
-    let filePath = `/uploads/images/${req.file.filename}.png`;
-    let tempPath = req.file.path;
-    let targetPath = path.join(__dirname, `../../${filePath}`);
+    var filePath = `/uploads/images/${req.file.filename}.png`;
+    var tempPath = req.file.path;
+    var targetPath = path.join(__dirname, `../../${filePath}`);
 
     fs.rename(tempPath, targetPath, async (error) => {
       if (error != null) {
