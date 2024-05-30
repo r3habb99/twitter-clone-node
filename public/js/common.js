@@ -250,6 +250,14 @@ $('#userSearchTextbox').keydown((event) => {
   }, 1000);
 });
 
+$('#createChatButton').click(() => {
+  let data = JSON.stringify(selectedUsers);
+  $.post('/api/chats', { users: data }, (chat) => {
+    if (!chat?._id) return alert('Invalid response from server');
+    window.location.href = `/messages/${chat._id}`;
+  });
+});
+
 $(document).on('click', '.likeButton', (event) => {
   let button = $(event.target);
   let postId = getPostIdFromElement(button);
