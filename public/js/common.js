@@ -227,8 +227,15 @@ $('#userSearchTextbox').keydown((event) => {
   let textbox = $(event.target);
   let value = textbox.val();
 
-  if (value === '' && event.keycode === 8) {
+  if (value === '' && (event.which === 8 || event.keyCode === 8)) {
     //  Remove user from selection
+    selectedUsers.pop();
+    updateSelectedUserHtml();
+    $('.resultsContainer').html('');
+
+    if (selectedUsers.length === 0) {
+      $('#createChatButton').prop('disabled', true);
+    }
     return;
   }
 
@@ -553,7 +560,7 @@ function outputSelectableUsers(results, container) {
     ) {
       return;
     }
-    let html = createUserHtml(result, true);
+    let html = createUserHtml(result, false);
     let element = $(html);
     element.click(() => userSelected(result));
 
@@ -567,7 +574,21 @@ function outputSelectableUsers(results, container) {
 
 function userSelected(user) {
   selectedUsers.push(user);
+  updateSelectedUserHtml();
   $('#userSearchTextbox').val('').focus();
   $('.resultsContainer').html('');
   $('#createChatButton').prop('disabled', false);
+}
+
+function updateSelectedUserHtml() {
+  let elements = [];
+
+  selectedUsers.forEach((user) => {
+    let name = user.firstName + ' ' + user.lastName;
+    let userElement = $(`<span class='selectedUser'>${name}</span>`);
+    elements.push(userElement);
+  });
+
+  $('.selectedUser').remove();
+  $('#selectedUsers').prepend(elements);
 }
