@@ -1,5 +1,7 @@
 // Globals
 let cropper;
+let timer;
+let selectedUsers = [];
 
 $('#postTextarea, #replyTextarea').keyup((event) => {
   let textbox = $(event.target);
@@ -217,6 +219,42 @@ $('#coverPhotoButton').click(() => {
       contentType: false,
       success: () => location.reload(),
     });
+  });
+});
+
+$('#userSearchTextbox').keydown((event) => {
+  clearTimeout(timer);
+  let textbox = $(event.target);
+  let value = textbox.val();
+
+  if (value === '' && (event.which === 8 || event.keyCode === 8)) {
+    //  Remove user from selection
+    selectedUsers.pop();
+    updateSelectedUserHtml();
+    $('.resultsContainer').html('');
+
+    if (selectedUsers.length === 0) {
+      $('#createChatButton').prop('disabled', true);
+    }
+    return;
+  }
+
+  timer = setTimeout(() => {
+    value = textbox.val().trim();
+
+    if (value == '') {
+      $('.resultsContainer').html('');
+    } else {
+      searchUsers(value);
+    }
+  }, 1000);
+});
+
+$('#createChatButton').click(() => {
+  let data = JSON.stringify(selectedUsers);
+  $.post('/api/chats', { users: data }, (chat) => {
+    if (!chat?._id) return alert('Invalid response from server');
+    window.location.href = `/messages/${chat._id}`;
   });
 });
 
@@ -512,4 +550,73 @@ function createUserHtml(userData, showFollowButton) {
                 </div>
                 ${followButton}
             </div>`;
+}
+
+function searchUsers(searchTerm) {
+  $.get('/api/users', { search: searchTerm }, (results) => {
+    outputSelectableUsers(results, $('.resultsContainer'));
+  });
+}
+
+function outputSelectableUsers(results, container) {
+  container.html('');
+
+  results.forEach((result) => {
+    if (
+      result._id === userLoggedIn._id ||
+      selectedUsers.some((u) => u._id === result._id)
+    ) {
+      return;
+    }
+    let html = createUserHtml(result, false);
+    let element = $(html);
+    element.click(() => userSelected(result));
+
+    container.append(element);
+  });
+
+  if (results.length == 0) {
+    container.append("<span class='noResults'>No results found</span>");
+  }
+}
+
+function userSelected(user) {
+  selectedUsers.push(user);
+  updateSelectedUserHtml();
+  $('#userSearchTextbox').val('').focus();
+  $('.resultsContainer').html('');
+  $('#createChatButton').prop('disabled', false);
+}
+
+function updateSelectedUserHtml() {
+  let elements = [];
+
+  selectedUsers.forEach((user) => {
+    let name = user.firstName + ' ' + user.lastName;
+    let userElement = $(`<span class='selectedUser'>${name}</span>`);
+    elements.push(userElement);
+  });
+
+  $('.selectedUser').remove();
+  $('#selectedUsers').prepend(elements);
+}
+
+function getChatName(chatData) {
+  let chatName = chatData.chatName;
+
+  if (!chatName) {
+    let otherChatUsers = getOtherChatUsers(chatData.users);
+    let namesArray = otherChatUsers.map(
+      (user) => user.firstName + ' ' + user.lastName
+    );
+    chatName = namesArray.join(', ');
+  }
+
+  return chatName;
+}
+
+function getOtherChatUsers(users) {
+  if (users.length === 1) return users;
+
+  return users.filter((user) => user._id != userLoggedIn._id);
 }
