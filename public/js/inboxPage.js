@@ -57,7 +57,7 @@ function getChatImageElements(chatData) {
 }
 
 function getUserChatImageElement(user) {
-  if (!user || !user.profilePic) {
+  if (!user?.profilePic) {
     return alert('User passed into function is invalid');
   }
 
