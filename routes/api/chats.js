@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const router = express.Router();
 const bodyParser = require('body-parser');
+const User = require('../../schemas/UserSchema');
+const Post = require('../../schemas/PostSchema');
 const Chat = require('../../schemas/ChatSchema');
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -37,8 +39,12 @@ router.post('/', async (req, res, next) => {
 router.get('/', async (req, res, next) => {
   Chat.find({ users: { $elemMatch: { $eq: req.session.user._id } } })
     .populate('users')
+    .populate('latestMessage')
     .sort({ updatedAt: -1 })
-    .then((results) => res.status(200).send(results))
+    .then(async (results) => {
+      results = await User.populate(results, { path: 'latestMessage.sender' });
+      res.status(200).send(results);
+    })
     .catch((error) => {
       console.log(error);
       res.sendStatus(400);

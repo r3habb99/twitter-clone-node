@@ -20,12 +20,13 @@ $('#chatNameButton').click(() => {
     },
   });
 });
+
 $('.sendMessageButton').click(() => {
   messageSubmitted();
 });
 
 $('.inputTextbox').keydown((event) => {
-  if (event.which === 13 && !event.shiftKey) {
+  if (event.which === 13) {
     messageSubmitted();
     return false;
   }
@@ -68,7 +69,7 @@ function addChatMessageHtml(message) {
 }
 
 function createMessageHtml(message) {
-  let isMine = message.sender._id === userLoggedIn._id;
+  let isMine = message.sender._id == userLoggedIn._id;
   let liClassName = isMine ? 'mine' : 'theirs';
 
   return `<li class='message ${liClassName}'>
