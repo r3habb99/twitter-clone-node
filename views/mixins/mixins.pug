@@ -132,13 +132,13 @@ mixin createChatImage(chatData, userLoggedIn)
                 span +#{remainingUsers}
 
         each user in chatData.users
-            if chatData.users.length !== 1 && user._id === userLoggedIn._id
+            if chatData.users.length != 1 && user._id == userLoggedIn._id //Must need don't add extra =
                 - continue
             else if i >= maxImagesToShow    
                 - break
             
             img(src=user.profilePic, alt="User's profile picture", title=user.firstName)
-            - i++
+            - i + 1
 
 mixin createChatNameModal(chat)
     #chatNameModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='chatNameModalLabel', aria-hidden='true')

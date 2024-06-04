@@ -765,5 +765,6 @@ button span {
 
 .loadingSpinnerContainer img {
     width: 50%;
+    margin-top: 20%;
     max-width: 75px;
 }
