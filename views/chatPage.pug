@@ -6,7 +6,7 @@ block content
         span.errorMessage #{errorMessage}
     else 
         script.
-            let chatId = '!{chat._id}';
+            var chatId = '!{chat._id}';
 
         .chatPageContainer
             .chatTitleBarContainer
@@ -18,6 +18,10 @@ block content
                     img(src="/images/loader.gif", alt="Loading spinner")
                 .chatContainer(style="visibility: hidden")
                     ul.chatMessages
+
+                    .typingDots
+                        img(src="/images/dots.gif", alt="Typing dots")
+
                     .footer
                         textarea.inputTextbox(name="messageInput", placeholder="Type a message...")
                         button.sendMessageButton

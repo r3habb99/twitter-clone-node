@@ -21,6 +21,9 @@ body {
     font-weight: 300;
 }
 
+ul {
+    margin: 0;
+}
 * {
     outline: none !important;
 }
@@ -671,9 +674,9 @@ button span {
     display: flex;
     align-items: flex-end;
     flex-shrink: 0;
-    -webkit-flex: 0;
 }
 
+.typingDots img,
 .chatMessages .message .messageBody {
     background-color: #f1f0f0;
     padding: 6px 12px;
@@ -681,6 +684,15 @@ button span {
     font-size: 14px;
 }
 
+.typingDots img {
+    height: 35px;
+}
+
+.typingDots {
+    padding: var(--spacing);
+    padding-bottom: 0;
+    display: none;
+}
 .chatMessages .message .messageContainer {
     display: flex;
     flex-direction: column;
@@ -694,6 +706,7 @@ button span {
 .chatMessages .message.theirs .messageContainer {
     align-items: flex-start;
 }
+
 .chatMessages .message.mine {
     flex-direction: row-reverse;
 }
@@ -736,6 +749,7 @@ button span {
 .chatMessages .message.theirs.last:not(.first) .messageBody {
     border-top-left-radius: 2px;
 }
+
 .senderName {
     color: rgba(0, 0, 0, 0.4);
 }
@@ -765,6 +779,5 @@ button span {
 
 .loadingSpinnerContainer img {
     width: 50%;
-    margin-top: 20%;
     max-width: 75px;
 }
