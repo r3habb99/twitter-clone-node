@@ -175,6 +175,7 @@ button span {
 .mainContentContainer {
     flex: 1;
     display: flex;
+    overflow-y: hidden;
 }
 
 .postContentContainer {
@@ -465,6 +466,7 @@ button span {
     flex-direction: column;
     min-height: 0;
     flex: 1;
+    flex-basis: 0;
 }
 
 .chatTitleBar {
@@ -685,6 +687,13 @@ button span {
     max-width: 55%;
 }
 
+.chatMessages .message.mine .messageContainer {
+    align-items: flex-end;
+}
+
+.chatMessages .message.theirs .messageContainer {
+    align-items: flex-start;
+}
 .chatMessages .message.mine {
     flex-direction: row-reverse;
 }
@@ -693,6 +702,7 @@ button span {
     background-color: var(--blue);
     color: #fff;
 }
+
 .chatMessages .message.mine.first .messageBody {
     border-bottom-right-radius: 2px;
 }
@@ -725,4 +735,35 @@ button span {
 
 .chatMessages .message.theirs.last:not(.first) .messageBody {
     border-top-left-radius: 2px;
+}
+.senderName {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+.chatMessages .imageContainer {
+    height: 24px;
+    width: 24px;
+    margin-right: 7px;
+}
+
+.chatMessages img {
+    height: 100%;
+    border-radius: 50%;
+    vertical-align: bottom;
+}
+
+.chatMessages .message.last {
+    margin-bottom: 7px;
+}
+
+.loadingSpinnerContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.loadingSpinnerContainer img {
+    width: 50%;
+    max-width: 75px;
 }
