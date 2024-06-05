@@ -431,10 +431,14 @@ function getRetweetText(postData) {
 }
 
 function getReplyFlag(postData) {
-  const replyToUsername = postData.replyTo.postedBy.username;
-  return `<div class='replyFlag'>
-            Replying to <a href='/profile/${replyToUsername}'>@${replyToUsername}</a>
-          </div>`;
+  if (postData.replyTo?.postedBy?.username) {
+    const replyToUsername = postData.replyTo.postedBy.username;
+    return `<div class='replyFlag'>
+              Replying to <a href='/profile/${replyToUsername}'>@${replyToUsername}</a>
+            </div>`;
+  } else {
+    return ''; // or handle the scenario as needed, such as displaying a default message
+  }
 }
 
 function getPostButtons(postData) {

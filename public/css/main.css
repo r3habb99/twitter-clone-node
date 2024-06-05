@@ -167,6 +167,19 @@ button span {
 .textareaContainer {
     flex: 1;
     padding-left: var(--spacing);
+    background-color: var(--lightGrey);
+    }
+    
+    .textareareply {
+        flex: 1;
+        padding-left: var(--spacing);
+    }
+    
+    .textareareply textarea {
+        width: 100%;
+        border: none;
+        resize: none;
+        font-size: 19px;
 }
 
 .textareaContainer textarea {
@@ -176,7 +189,6 @@ button span {
     font-size: 19px;
     background-color: var(--lightGrey);
 }
-
 #submitPostButton {
     background-color: var(--blue);
     color: white;
