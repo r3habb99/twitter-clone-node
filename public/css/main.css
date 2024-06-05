@@ -4,6 +4,7 @@
     --blueBackground: rgba(212, 237, 255, 0.6);
     --buttonHoverBg: #d4edff;
     --lightGrey: rgb(230, 236, 240);
+    
     --spacing: 15px;
     --greyText: rgb(101, 119, 134);
     --greyButtonText: rgba(0, 0, 0, 0.34);
@@ -11,15 +12,18 @@
     --redBackground: rgba(226, 34, 94, 0.1);
     --green: rgb(23, 191, 99);
     --greenBackground: rgba(23, 191, 99, 0.1);
+    --font-family: 'Roboto', sans-serif;
 }
 
 html,
 body {
     height: 100%;
     min-height: 100%;
-    background-color: #fff;
-    font-weight: 300;
+    background-color: var(--lightGrey);
+        font-family: var(--font-family);
+        font-weight: 300;
 }
+
 
 ul {
     margin: 0;
@@ -86,6 +90,10 @@ button {
     background-color: transparent;
     border: none;
     color: var(--greyButtonText);
+    cursor: pointer;
+        transition: color 0.3s;
+        font-family: var(--font-family);
+        font-size: 1rem;
 }
 
 button i,
@@ -94,11 +102,14 @@ button span {
 }
 
 .mainSectionContainer {
-    padding: 0;
+    padding: var(--spacing);
     border-left: 1px solid var(--lightGrey);
     border-right: 1px solid var(--lightGrey);
     display: flex;
     flex-direction: column;
+    background-color: var(--lightGrey);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .titleContainer {
@@ -108,27 +119,38 @@ button span {
     align-items: center;
     border-bottom: 1px solid var(--lightGrey);
     flex-shrink: 0;
+    background-color: var(--lightGrey);
 }
 
 .titleContainer h1 {
     flex: 1;
+    font-size: 1.2rem;
+        margin: 0;
+        color: var(--greyText);
 }
 
 .postFormContainer {
     display: flex;
     padding: var(--spacing);
-    border-bottom: 10px solid rgb(230, 236, 240);
+    border-bottom: 10px solid var(--lightGrey);
     flex-shrink: 0;
+    background-color: var(--lightGrey);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .modal .postFormContainer {
     border: none;
     padding: 0;
     padding-top: var(--spacing);
+        background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .modal .post {
-    padding: 0 0 var(--spacing) 0;
+    padding: 0 var(--spacing) var(--spacing) 0;
+        background-color: #fff;
 }
 
 .userImageContainer {
@@ -152,6 +174,7 @@ button span {
     border: none;
     resize: none;
     font-size: 19px;
+    background-color: var(--lightGrey);
 }
 
 #submitPostButton {
@@ -489,7 +512,10 @@ button span {
     flex: 1;
     font-weight: 200;
     min-width: 350px;
+    background-color: var(--lightGrey);
+        color: var(--greyText);
 }
+        
 
 #createChatButton {
     border: none;
