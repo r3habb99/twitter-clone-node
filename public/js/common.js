@@ -3,6 +3,11 @@ let cropper;
 let timer;
 let selectedUsers = [];
 
+$(document).ready(() => {
+  refreshMessagesBadge();
+  refreshNotificationsBadge();
+});
+
 $('#postTextarea, #replyTextarea').keyup((event) => {
   let textbox = $(event.target);
   let value = textbox.val().trim();
@@ -39,6 +44,7 @@ $('#submitPostButton, #submitReplyButton').click(() => {
 
   $.post('/api/posts', data, (postData) => {
     if (postData.replyTo) {
+      emitNotification(postData.replyTo.postedBy);
       location.reload();
     } else {
       let html = createPostHtml(postData);
@@ -272,6 +278,7 @@ $(document).on('click', '.likeButton', (event) => {
 
       if (postData.likes.includes(userLoggedIn._id)) {
         button.addClass('active');
+        emitNotification(postData.postedBy);
       } else {
         button.removeClass('active');
       }
@@ -293,6 +300,7 @@ $(document).on('click', '.retweetButton', (event) => {
 
       if (postData.retweetUsers.includes(userLoggedIn._id)) {
         button.addClass('active');
+        emitNotification(postData.postedBy);
       } else {
         button.removeClass('active');
       }
@@ -326,6 +334,7 @@ $(document).on('click', '.followButton', (e) => {
       if (data.following?.includes(userId)) {
         button.addClass('following');
         button.text('Following');
+        emitNotification(userId);
       } else {
         button.removeClass('following');
         button.text('Follow');
@@ -642,6 +651,7 @@ function messageReceived(newMessage) {
   } else {
     addChatMessageHtml(newMessage);
   }
+  refreshMessagesBadge();
 }
 
 function markNotificationsAsOpened(notificationId = null, callback = null) {
@@ -656,4 +666,103 @@ function markNotificationsAsOpened(notificationId = null, callback = null) {
     type: 'PUT',
     success: () => callback(),
   });
+}
+
+function refreshMessagesBadge() {
+  $.get('/api/chats', { unreadOnly: true }, (data) => {
+    let numResults = data.length;
+
+    if (numResults > 0) {
+      $('#messagesBadge').text(numResults).addClass('active');
+    } else {
+      $('#messagesBadge').text('').removeClass('active');
+    }
+  });
+}
+
+function refreshNotificationsBadge() {
+  $.get('/api/notifications', { unreadOnly: true }, (data) => {
+    let numResults = data.length;
+
+    if (numResults > 0) {
+      $('#notificationBadge').text(numResults).addClass('active');
+    } else {
+      $('#notificationBadge').text('').removeClass('active');
+    }
+  });
+}
+
+function showNotificationPopup(data) {
+  let html = createNotificationHtml(data);
+  let element = $(html);
+  element.hide().prependTo('#notificationList').slideDown('fast');
+
+  setTimeout(() => element.fadeOut(400), 5000);
+}
+
+function outputNotificationList(notifications, container) {
+  notifications.forEach((notification) => {
+    let html = createNotificationHtml(notification);
+    container.append(html);
+  });
+
+  if (notifications.length == 0) {
+    container.append("<span class='noResults'>Nothing to show.</span>");
+  }
+}
+
+function createNotificationHtml(notification) {
+  let userFrom = notification.userFrom;
+  let text = getNotificationText(notification);
+  let href = getNotificationUrl(notification);
+  let className = notification.opened ? '' : 'active';
+
+  return `<a href='${href}' class='resultListItem notification ${className}' data-id='${notification._id}'>
+                <div class='resultsImageContainer'>
+                    <img src='${userFrom.profilePic}'>
+                </div>
+                <div class='resultsDetailsContainer ellipsis'>
+                    <span class='ellipsis'>${text}</span>
+                </div>
+            </a>`;
+}
+
+function getNotificationText(notification) {
+  let userFrom = notification.userFrom;
+
+  if (!userFrom.firstName || !userFrom.lastName) {
+    return alert('user from data not populated');
+  }
+
+  let userFromName = `${userFrom.firstName} ${userFrom.lastName}`;
+
+  let text;
+
+  if (notification.notificationType == 'retweet') {
+    text = `${userFromName} retweeted one of your posts`;
+  } else if (notification.notificationType == 'postLike') {
+    text = `${userFromName} liked one of your posts`;
+  } else if (notification.notificationType == 'reply') {
+    text = `${userFromName} replied to one of your posts`;
+  } else if (notification.notificationType == 'follow') {
+    text = `${userFromName} followed you`;
+  }
+
+  return `<span class='ellipsis'>${text}</span>`;
+}
+
+function getNotificationUrl(notification) {
+  let url = '#';
+
+  if (
+    notification.notificationType == 'retweet' ||
+    notification.notificationType == 'postLike' ||
+    notification.notificationType == 'reply'
+  ) {
+    url = `/posts/${notification.entityId}`;
+  } else if (notification.notificationType == 'follow') {
+    url = `/profile/${notification.entityId}`;
+  }
+
+  return url;
 }
