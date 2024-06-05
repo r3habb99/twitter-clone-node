@@ -820,6 +820,7 @@ button span {
 .resultListItem.notification * {
     pointer-events: none;
 }
+
 #notificationBadge,
 #messagesBadge {
     background-color: var(--red);
@@ -851,8 +852,4 @@ button span {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-}
-
-#notificationList .active {
-    background-color: white;
 }
