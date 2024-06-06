@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const upload = multer({ dest: 'uploads/' });
 const User = require('../../schemas/UserSchema');
+const Notification = require('../../schemas/NotificationSchema');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -58,6 +59,14 @@ router.put('/:userId/follow', async (req, res, next) => {
     res.sendStatus(400);
   });
 
+  if (!isFollowing) {
+    await Notification.insertNotification(
+      userId,
+      req.session.user._id,
+      'follow',
+      req.session.user._id
+    );
+  }
   res.status(200).send(req.session.user);
 });
 
