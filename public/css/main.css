@@ -806,6 +806,7 @@ button span {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 40%;
     width: 100%;
 }
 
