@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('./database');
 const session = require('express-session');
 const socketIo = require('socket.io');
+require('dotenv').config();
 
 const server = app.listen(port, () => {
   const protocol = 'http';
