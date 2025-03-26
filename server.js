@@ -22,7 +22,7 @@ const httpServer = http.createServer(app);
 const io = socketIo(httpServer, {
   cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   },
   pingTimeout: 60000,
 });
@@ -71,16 +71,27 @@ app.get("/", middleware.requireLogin, (req, res, next) => {
 io.on("connection", (socket) => {
   socket.on("setup", (userData) => {
     socket.join(userData._id);
+    logger.info("Socket connected to room", userData._id);
     socket.emit("connected");
   });
 
-  socket.on("join room", (room) => socket.join(room));
-  socket.on("typing", (room) => socket.in(room).emit("typing"));
-  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+  socket.on("join room", (room) => {
+    socket.join(room);
+    logger.info("Socket joined room", room);
+  });
+  socket.on("typing", (room) => {
+    socket.in(room).emit("typing");
+    logger.info("User is typing in room", room);
+  });
+  socket.on("stop typing", (room) => {
+    socket.in(room).emit("stop typing");
+    logger.info("User stopped typing in room", room);
+  });
 
-  socket.on("notification received", (room) =>
-    socket.in(room).emit("notification received")
-  );
+  socket.on("notification received", (room) => {
+    socket.in(room).emit("notification received");
+    logger.info("Notification received in room", room);
+  });
 
   socket.on("new message", (newMessage) => {
     let chat = newMessage.chat;
@@ -90,6 +101,7 @@ io.on("connection", (socket) => {
     chat.users.forEach((user) => {
       if (user._id == newMessage.sender._id) return;
       socket.in(user._id).emit("message received", newMessage);
+      logger.info("Message received in room", user._id);
     });
   });
 });

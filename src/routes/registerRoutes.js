@@ -1,14 +1,12 @@
 const express = require("express");
 const app = express();
 const router = express.Router();
-const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const User = require("../schemas/UserSchema");
+const { hashPassword } = require("../utils/bcryptService");
 
-app.set("view engine", "pug");
-app.set("views", "views");
-
-app.use(bodyParser.urlencoded({ extended: false }));
+// app.set("view engine", "pug");
+// app.set("views", "views");
 
 router.get("/", (req, res, next) => {
   res.status(200).render("register");
@@ -35,7 +33,7 @@ router.post("/", async (req, res, next) => {
     if (user == null) {
       // No user found
       let data = req.body;
-      data.password = await bcrypt.hash(password, 10);
+      data.password = await hashPassword(password);
 
       User.create(data).then((user) => {
         req.session.user = user;
