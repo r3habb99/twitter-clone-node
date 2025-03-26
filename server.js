@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const port = 3000;
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 const middleware = require("./src/middlewares/authMiddleware");
 const path = require("path");
 const bodyParser = require("body-parser");
