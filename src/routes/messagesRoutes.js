@@ -1,49 +1,49 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const router = express.Router();
-const Chat = require('../schemas/ChatSchema');
-const User = require('../schemas/UserSchema');
+const Chat = require("../schemas/ChatSchema");
+const User = require("../schemas/UserSchema");
 
-router.get('/', (req, res, next) => {
+router.get("/", (req, res, next) => {
   let payload = {
-    pageTitle: 'Inbox',
+    pageTitle: "Inbox",
     userLoggedIn: req.session.user,
     userLoggedInJs: JSON.stringify(req.session.user),
   };
-  res.status(200).render('inboxPage', payload);
+  res.status(200).render("inboxPage", payload);
 });
 
-router.get('/new', (req, res, next) => {
+router.get("/new", (req, res, next) => {
   let payload = {
-    pageTitle: 'New message',
+    pageTitle: "New message",
     userLoggedIn: req.session.user,
     userLoggedInJs: JSON.stringify(req.session.user),
   };
-  res.status(200).render('newMessage', payload);
+  res.status(200).render("newMessage", payload);
 });
 
-router.get('/:chatId', async (req, res, next) => {
+router.get("/:chatId", async (req, res, next) => {
   let userId = req.session.user._id;
   let chatId = req.params.chatId;
   let isValidId = mongoose.isValidObjectId(chatId);
 
   let payload = {
-    pageTitle: 'Chat',
+    pageTitle: "Chat",
     userLoggedIn: req.session.user,
     userLoggedInJs: JSON.stringify(req.session.user),
   };
 
   if (!isValidId) {
     payload.errorMessage =
-      'Chat does not exist or you do not have permission to view it.';
-    return res.status(200).render('chatPage', payload);
+      "Chat does not exist or you do not have permission to view it.";
+    return res.status(200).render("chatPage", payload);
   }
 
   let chat = await Chat.findOne({
     _id: chatId,
     users: { $elemMatch: { $eq: userId } },
-  }).populate('users');
+  }).populate("users");
 
   if (chat == null) {
     // Check if chat id is really user id
@@ -57,12 +57,12 @@ router.get('/:chatId', async (req, res, next) => {
 
   if (chat == null) {
     payload.errorMessage =
-      'Chat does not exist or you do not have permission to view it.';
+      "Chat does not exist or you do not have permission to view it.";
   } else {
     payload.chat = chat;
   }
 
-  res.status(200).render('chatPage', payload);
+  res.status(200).render("chatPage", payload);
 });
 
 function getChatByUserId(userLoggedInId, otherUserId) {
@@ -86,7 +86,7 @@ function getChatByUserId(userLoggedInId, otherUserId) {
       new: true,
       upsert: true,
     }
-  ).populate('users');
+  ).populate("users");
 }
 
 module.exports = router;

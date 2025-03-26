@@ -1,11 +1,11 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const router = express.Router();
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const User = require('../schemas/UserSchema');
+const bodyParser = require("body-parser");
+const bcrypt = require("bcrypt");
+const User = require("../schemas/UserSchema");
 
-router.get('/', (req, res, next) => {
+router.get("/", (req, res, next) => {
   let payload = {
     pageTitle: req.session.user.username,
     userLoggedIn: req.session.user,
@@ -13,34 +13,34 @@ router.get('/', (req, res, next) => {
     profileUser: req.session.user,
   };
 
-  res.status(200).render('profilePage', payload);
+  res.status(200).render("profilePage", payload);
 });
 
-router.get('/:username', async (req, res, next) => {
+router.get("/:username", async (req, res, next) => {
   let payload = await getPayload(req.params.username, req.session.user);
 
-  res.status(200).render('profilePage', payload);
+  res.status(200).render("profilePage", payload);
 });
 
-router.get('/:username/replies', async (req, res, next) => {
+router.get("/:username/replies", async (req, res, next) => {
   let payload = await getPayload(req.params.username, req.session.user);
-  payload.selectedTab = 'replies';
+  payload.selectedTab = "replies";
 
-  res.status(200).render('profilePage', payload);
+  res.status(200).render("profilePage", payload);
 });
 
-router.get('/:username/following', async (req, res, next) => {
+router.get("/:username/following", async (req, res, next) => {
   let payload = await getPayload(req.params.username, req.session.user);
-  payload.selectedTab = 'following';
+  payload.selectedTab = "following";
 
-  res.status(200).render('followersAndFollowing', payload);
+  res.status(200).render("followersAndFollowing", payload);
 });
 
-router.get('/:username/followers', async (req, res, next) => {
+router.get("/:username/followers", async (req, res, next) => {
   let payload = await getPayload(req.params.username, req.session.user);
-  payload.selectedTab = 'followers';
+  payload.selectedTab = "followers";
 
-  res.status(200).render('followersAndFollowing', payload);
+  res.status(200).render("followersAndFollowing", payload);
 });
 
 async function getPayload(username, userLoggedIn) {
@@ -51,7 +51,7 @@ async function getPayload(username, userLoggedIn) {
 
     if (user == null) {
       return {
-        pageTitle: 'User not found',
+        pageTitle: "User not found",
         userLoggedIn: userLoggedIn,
         userLoggedInJs: JSON.stringify(userLoggedIn),
       };

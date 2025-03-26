@@ -1,25 +1,25 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const router = express.Router();
-const bodyParser = require('body-parser');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const upload = multer({ dest: 'uploads/' });
-const User = require('../../schemas/UserSchema');
-const Notification = require('../../schemas/NotificationSchema');
+const bodyParser = require("body-parser");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+const upload = multer({ dest: "uploads/" });
+const User = require("../../schemas/UserSchema");
+const Notification = require("../../schemas/NotificationSchema");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-router.get('/', async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   let searchObj = req.query;
 
   if (req.query.search !== undefined) {
     searchObj = {
       $or: [
-        { firstName: { $regex: req.query.search, $options: 'i' } },
-        { lastName: { $regex: req.query.search, $options: 'i' } },
-        { username: { $regex: req.query.search, $options: 'i' } },
+        { firstName: { $regex: req.query.search, $options: "i" } },
+        { lastName: { $regex: req.query.search, $options: "i" } },
+        { username: { $regex: req.query.search, $options: "i" } },
       ],
     };
   }
@@ -32,7 +32,7 @@ router.get('/', async (req, res, next) => {
     });
 });
 
-router.put('/:userId/follow', async (req, res, next) => {
+router.put("/:userId/follow", async (req, res, next) => {
   let userId = req.params.userId;
 
   let user = await User.findById(userId);
@@ -41,7 +41,7 @@ router.put('/:userId/follow', async (req, res, next) => {
 
   let isFollowing =
     user.followers && user.followers.includes(req.session.user._id);
-  let option = isFollowing ? '$pull' : '$addToSet';
+  let option = isFollowing ? "$pull" : "$addToSet";
 
   req.session.user = await User.findByIdAndUpdate(
     req.session.user._id,
@@ -63,16 +63,16 @@ router.put('/:userId/follow', async (req, res, next) => {
     await Notification.insertNotification(
       userId,
       req.session.user._id,
-      'follow',
+      "follow",
       req.session.user._id
     );
   }
   res.status(200).send(req.session.user);
 });
 
-router.get('/:userId/following', async (req, res, next) => {
+router.get("/:userId/following", async (req, res, next) => {
   User.findById(req.params.userId)
-    .populate('following')
+    .populate("following")
     .then((results) => {
       res.status(200).send(results);
     })
@@ -82,9 +82,9 @@ router.get('/:userId/following', async (req, res, next) => {
     });
 });
 
-router.get('/:userId/followers', async (req, res, next) => {
+router.get("/:userId/followers", async (req, res, next) => {
   User.findById(req.params.userId)
-    .populate('followers')
+    .populate("followers")
     .then((results) => {
       res.status(200).send(results);
     })
@@ -95,11 +95,11 @@ router.get('/:userId/followers', async (req, res, next) => {
 });
 
 router.post(
-  '/profilePicture',
-  upload.single('croppedImage'),
+  "/profilePicture",
+  upload.single("croppedImage"),
   async (req, res, next) => {
     if (!req.file) {
-      console.log('No file uploaded with ajax request.');
+      console.log("No file uploaded with ajax request.");
       return res.sendStatus(400);
     }
 
@@ -124,11 +124,11 @@ router.post(
 );
 
 router.post(
-  '/coverPhoto',
-  upload.single('croppedImage'),
+  "/coverPhoto",
+  upload.single("croppedImage"),
   async (req, res, next) => {
     if (!req.file) {
-      console.log('No file uploaded with ajax request.');
+      console.log("No file uploaded with ajax request.");
       return res.sendStatus(400);
     }
 
