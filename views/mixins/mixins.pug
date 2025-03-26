@@ -63,15 +63,15 @@ mixin createImageUploadModal()
                 .modal-header
                     h5#imageUploadModalLabel.modal-title Upload a new profile picture
                     button.close(type='button', data-dismiss='modal', aria-label='Close')
-                    span(aria-hidden='true') &times;
+                        span(aria-hidden='true') &times;
                 .modal-body
-                    input#filePhoto(type="file", name="filePhoto")
-
-                    .imagePreviewContainer
-                        img#imagePreview
+                    form#profilePictureForm(method="POST", action="/profile/upload/profilePicture", enctype="multipart/form-data")
+                        input#filePhoto(type="file", name="profilePicture", accept="image/*", required)
+                        .imagePreviewContainer
+                            img#imagePreview(src="", alt="Image preview", style="display: none; max-width: 100%;")
                 .modal-footer
                     button.btn.btn-secondary(type='button', data-dismiss='modal') Cancel
-                    button#imageUploadButton.btn.btn-primary(type='button') Save
+                    button#imageUploadButton.btn.btn-primary(type='submit') Save
 
 mixin createCoverPhotoUploadModal()
     #coverPhotoUploadModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='coverPhotoModalLabel', aria-hidden='true')

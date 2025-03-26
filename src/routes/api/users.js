@@ -103,12 +103,18 @@ router.post(
       return res.sendStatus(400);
     }
 
-    let filePath = `/uploads/images/${req.file.filename}.png`;
-    let tempPath = req.file.path;
-    let targetPath = path.join(__dirname, `../../${filePath}`);
+    const imagesDir = path.join(__dirname, "../../uploads/images");
+    const filePath = `/uploads/images/${req.file.filename}.png`;
+    const tempPath = req.file.path;
+    const targetPath = path.join(__dirname, `../../${filePath}`);
+
+    // Ensure the directory exists
+    if (!fs.existsSync(imagesDir)) {
+      fs.mkdirSync(imagesDir, { recursive: true });
+    }
 
     fs.rename(tempPath, targetPath, async (error) => {
-      if (error != null) {
+      if (error) {
         console.log(error);
         return res.sendStatus(400);
       }
@@ -131,23 +137,32 @@ router.post(
       console.log("No file uploaded with ajax request.");
       return res.sendStatus(400);
     }
+    const coverDir = path.join(__dirname, "../../uploads/cover");
+    const filePath = `/uploads/cover/${req.file.filename}.png`;
+    const tempPath = req.file.path;
+    const targetPath = path.join(__dirname, `../../${filePath}`);
 
-    let filePath = `/uploads/images/${req.file.filename}.png`;
-    let tempPath = req.file.path;
-    let targetPath = path.join(__dirname, `../../${filePath}`);
-
+    // Ensure the directory exists
+    if (!fs.existsSync(coverDir)) {
+      fs.mkdirSync(coverDir, { recursive: true });
+    }
     fs.rename(tempPath, targetPath, async (error) => {
-      if (error != null) {
+      if (error) {
         console.log(error);
         return res.sendStatus(400);
       }
 
-      req.session.user = await User.findByIdAndUpdate(
-        req.session.user._id,
-        { coverPhoto: filePath },
-        { new: true }
-      );
-      res.sendStatus(204);
+      try {
+        req.session.user = await User.findByIdAndUpdate(
+          req.session.user._id,
+          { coverPhoto: filePath },
+          { new: true }
+        );
+        res.sendStatus(204);
+      } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+      }
     });
   }
 );

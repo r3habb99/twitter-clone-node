@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const User = require("../../schemas/UserSchema");
 const Post = require("../../schemas/PostSchema");
 const Notification = require("../../schemas/NotificationSchema");
+const upload = require("../../utils/multer");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -224,6 +225,15 @@ router.put("/:id", async (req, res, next) => {
       console.log(error);
       res.sendStatus(400);
     });
+});
+
+router.post("/upload", upload.single("postImage"), async (req, res, next) => {
+  if (!req.file) {
+    return res.status(400).send("No file uploaded.");
+  }
+
+  const filePath = `/uploads/images${req.file.filename}`;
+  res.status(200).send({ filePath });
 });
 
 async function getPosts(filter) {

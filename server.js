@@ -46,7 +46,14 @@ app.set("views", "views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
-
+app.use(
+  "/uploads/images",
+  express.static(path.join(__dirname, "src/uploads/images"))
+);
+app.use(
+  "/uploads/cover",
+  express.static(path.join(__dirname, "src/uploads/cover"))
+);
 app.use(
   session({
     secret: "bbq chips",
