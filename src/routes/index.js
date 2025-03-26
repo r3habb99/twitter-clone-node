@@ -5,6 +5,7 @@ const router = express();
 
 // Routes
 const loginRoute = require("./loginRoutes");
+const logoutRoute = require("./logoutRoutes");
 const registerRoute = require("./registerRoutes");
 const postRoute = require("./postRoutes");
 const profileRoute = require("./profileRoutes");
@@ -21,5 +22,6 @@ router.use("/uploads", uploadRoute);
 router.use("/search", middleware.requireLogin, searchRoute);
 router.use("/messages", middleware.requireLogin, messagesRoute);
 router.use("/notifications", middleware.requireLogin, notificationsRoute);
+router.use("/logout", logoutRoute);
 
 module.exports = router;
