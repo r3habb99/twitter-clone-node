@@ -21,11 +21,13 @@ const httpServer = http.createServer(app);
 // Attach socket.io to the HTTP server
 const io = socketIo(httpServer, {
   cors: {
-    origin:
-      process.env.NODE_ENV === "production"
-        ? "https://social-message-post.onrender.com"
-        : "http://localhost:3000",
+    origin: [
+      "http://localhost:3000", // Development URL
+      "https://social-message-post.onrender.com", // Production URL
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type"],
+    credentials: true, // Allows cookies/session data
   },
   pingTimeout: 60000,
 });
@@ -37,7 +39,7 @@ const startServer = () => {
     const host =
       process.env.NODE_ENV === "production"
         ? "social-message-post.onrender.com"
-        : "localhost";
+        : "192.168.0.88";
 
     httpServer.listen(port, () => {
       logger.info(`Server is up and running at ${protocol}://${host}:${port}/`);
