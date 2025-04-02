@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+
 // const mongoose = require("mongoose");
 const middleware = require("./src/middlewares/authMiddleware");
 const path = require("path");
@@ -14,14 +14,17 @@ const indexRoutes = require("./src/routes/index");
 const indexApiRoutes = require("./src/routes/api/index");
 const { logger } = require("./src/utils/logger");
 const { connectDB } = require("./src/db/database");
-
+const port = process.env.PORT || 3000;
 // Create an HTTP server
 const httpServer = http.createServer(app);
 
 // Attach socket.io to the HTTP server
 const io = socketIo(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://social-message-post.onrender.com"
+        : "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   },
   pingTimeout: 60000,
@@ -30,9 +33,13 @@ const io = socketIo(httpServer, {
 const startServer = () => {
   try {
     connectDB();
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+    const host =
+      process.env.NODE_ENV === "production"
+        ? "social-message-post.onrender.com"
+        : "localhost";
+
     httpServer.listen(port, () => {
-      const protocol = "http";
-      const host = "localhost";
       logger.info(`Server is up and running at ${protocol}://${host}:${port}/`);
     });
   } catch (error) {
